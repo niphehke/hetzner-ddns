@@ -1,5 +1,7 @@
 # Hetzner Dynamic DNS Update via Cloud API
 
+<img src="icon.png" alt="hetzner-ddns icon" width="160"/>
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## About This Fork
