@@ -10,11 +10,13 @@ This project is an adapted version of the original `filiparag/hetzner_ddns`, but
 ## Features
 
 *   **Uses the new Hetzner Cloud API:** Compatible with current Hetzner DNS management.
+*   **Multi-domain:** Manage any number of zones/subdomains from a single container instance.
 *   **Containerized:** Runs reliably and isolated in a Docker container.
 *   **Configuration via Environment Variables:** Simple and secure configuration with `docker-compose`.
 *   **Automatic IP Detection:** Regularly checks the public IPv4 address.
 *   **Minimalist:** Slim Alpine Linux-based image and pure shell script for low resource consumption.
 *   **Reliable:** Updates the DNS entry only when the IP changes.
+*   **Fault-isolated:** A misconfigured or unreachable domain is skipped and logged; it does not stop the others from being updated.
 
 ## Background on API Transition
 
@@ -43,6 +45,11 @@ Hetzner has integrated the management of its DNS zones into the Hetzner Cloud AP
 
 ### Docker-Compose Example
 
+This example manages three domains/subdomains from a single container. Add or remove numbered
+`HETZNER_DNS_ZONE_NAME_n` / `HETZNER_DNS_RECORD_NAME_n` pairs as needed - the numbering does not
+need to be contiguous, and up to `MAX_DOMAIN_SLOTS` (default 20, override via env var) is supported
+without any code change.
+
 ```yaml
 services:
   hetzner-ddns:
@@ -51,10 +58,22 @@ services:
     restart: unless-stopped
     environment:
       - HETZNER_CLOUD_API_TOKEN=your_hetzner_cloud_api_token
-      - HETZNER_DNS_ZONE_NAME=your-domain.com #The name of your DNS zone (e.g., "example.com")
-      - HETZNER_DNS_RECORD_NAME=subdomain_or_@ #e.g. "myhost" for myhost.your_domain.com or "@" for your_domain.com
       - CHECK_INTERVAL_SECONDS=300
+      - HETZNER_DNS_ZONE_NAME_1=your-domain.com #The name of your DNS zone (e.g., "example.com")
+      - HETZNER_DNS_RECORD_NAME_1=subdomain_or_@ #e.g. "myhost" for myhost.your_domain.com or "@" for your_domain.com
+      - HETZNER_DNS_ZONE_NAME_2=your-domain.com
+      - HETZNER_DNS_RECORD_NAME_2=another-subdomain
+      - HETZNER_DNS_ZONE_NAME_3=other-domain.com
+      - HETZNER_DNS_RECORD_NAME_3=yet-another-subdomain
 ```
+
+To add domain 11 later, just add `HETZNER_DNS_ZONE_NAME_11` and `HETZNER_DNS_RECORD_NAME_11` to
+the `environment` list and restart the container (`docker compose up -d`). No image rebuild or
+script change is required unless you exceed `MAX_DOMAIN_SLOTS` (20 by default).
+
+**Note:** All domains share the one `HETZNER_CLOUD_API_TOKEN`. This is intended for managing
+multiple zones/records within your own Hetzner Cloud project/account, not for isolating
+independent tenants.
 
 ### Logging
 The script outputs logs with timestamps and the status of operations.

@@ -5,6 +5,13 @@ services:
     restart: unless-stopped
     environment:
       - HETZNER_CLOUD_API_TOKEN=your_hetzner_cloud_api_token
-      - HETZNER_DNS_ZONE_NAME=your-domain.com #The name of your DNS zone (e.g., "example.com")
-      - HETZNER_DNS_RECORD_NAME=subdomain_or_@ #e.g. "myhost" for myhost.your_domain.com or "@" for your_domain.com
       - CHECK_INTERVAL_SECONDS=300
+      # One shared token is used for all domains below. Add as many numbered
+      # pairs as you need (up to MAX_DOMAIN_SLOTS, default 20) - just remove
+      # any pair you don't use.
+      - HETZNER_DNS_ZONE_NAME_1=your-domain.com #The name of your DNS zone (e.g., "example.com")
+      - HETZNER_DNS_RECORD_NAME_1=subdomain_or_@ #e.g. "myhost" for myhost.your_domain.com or "@" for your_domain.com
+      - HETZNER_DNS_ZONE_NAME_2=your-domain.com
+      - HETZNER_DNS_RECORD_NAME_2=another-subdomain
+      - HETZNER_DNS_ZONE_NAME_3=other-domain.com
+      - HETZNER_DNS_RECORD_NAME_3=yet-another-subdomain
