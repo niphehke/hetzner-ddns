@@ -1,6 +1,6 @@
 services:
   hetzner-ddns:
-    image: mbaiti/hetzner-ddns:latest
+    image: ghcr.io/niphehke/hetzner-ddns:latest
     container_name: hetzner-ddns
     restart: unless-stopped
     environment:

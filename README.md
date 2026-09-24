@@ -1,9 +1,32 @@
 # Hetzner Dynamic DNS Update via Cloud API
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Docker Pulls](https://img.shields.io/docker/pulls/mbaiti/hetzner-ddns.svg)](https://hub.docker.com/r/mbaiti/hetzner-ddns)
 
-A slim Dynamic DNS Updater for Hetzner DNS entries, which uses the new Hetzner Cloud API. This tool monitors your public IP address and automatically updates a specific A-record in your Hetzner DNS zone if the IP address changes. Ideal for home servers or other dynamic IP environments.
+## About This Fork
+
+This is a fork of [`mbaiti/hetzner-ddns`](https://github.com/mbaiti/hetzner-ddns). If you only need to
+keep a single domain/subdomain up to date, the original project is simpler and works just as well -
+use that instead. This fork exists for one reason: **managing multiple domains/subdomains from a
+single container**, instead of running one container per domain.
+
+Changes compared to the original:
+
+*   **Multi-domain support:** Configuration was changed from a single `HETZNER_DNS_ZONE_NAME` /
+    `HETZNER_DNS_RECORD_NAME` pair to numbered slots (`HETZNER_DNS_ZONE_NAME_1` /
+    `HETZNER_DNS_RECORD_NAME_1`, `_2`, `_3`, ...). **This is a breaking change** - environment
+    variables from the original project's `docker-compose.yaml` will not work with this fork's image
+    without renaming them. See [Docker-Compose Example](#docker-compose-example) below.
+*   **One shared API token, one shared IP check:** All domains use the same `HETZNER_CLOUD_API_TOKEN`.
+    The public IP is fetched once per interval and applied to every configured domain, rather than
+    once per domain.
+*   **Fault isolation:** A misconfigured or temporarily unreachable domain is logged and skipped; it
+    does not stop the other domains from being updated.
+*   **Different image location:** This fork's image is published to
+    [`ghcr.io/niphehke/hetzner-ddns`](https://github.com/niphehke/hetzner-ddns/pkgs/container/hetzner-ddns)
+    (GitHub Container Registry) via GitHub Actions, not to Docker Hub. The original `mbaiti/hetzner-ddns`
+    image on Docker Hub is unaffected by this fork and still contains only the single-domain version.
+
+A slim Dynamic DNS Updater for Hetzner DNS entries, which uses the new Hetzner Cloud API. This tool monitors your public IP address and automatically updates one or more A-records in your Hetzner DNS zone(s) if the IP address changes. Ideal for home servers or other dynamic IP environments.
 
 This project is an adapted version of the original `filiparag/hetzner_ddns`, but has been completely optimized for operation in a Docker container with environment variables.
 
@@ -53,7 +76,7 @@ without any code change.
 ```yaml
 services:
   hetzner-ddns:
-    image: mbaiti/hetzner-ddns:latest
+    image: ghcr.io/niphehke/hetzner-ddns:latest
     container_name: hetzner-ddns
     restart: unless-stopped
     environment:
